@@ -55,10 +55,20 @@ void printVolts(float volts) {
 
 
 void storeVolts(float volts) {
-  // Stores the latest voltage measurement
- 
-  
-  // then store the latest reading in the seconds array
+  // Store the latest reading in the seconds array
   timearr[secs] = volts;
+
+  // Calculate the minute average and store it in the minute array
+  if (++secs == 60) {
+    volts = 0;
+    for (int i=0; i<60; i++) {
+      volts += timearr[i];
+    }
+    timearr[60 + mins] = volts / 60.0;
+    if (++mins == 60) {
+      mins = 0;
+    }
+    secs = 0;
+  }
 }
 
