@@ -13,6 +13,8 @@ int secs = 0;
 int mins = 0;
 
 #define inputPin A0
+#define graphMax 4.970
+#define graphMin 4.930
 
 void setup()
 {
@@ -37,6 +39,7 @@ void loop()
   volts *= 0.0153432;
 
   printVolts(volts);
+  printGraph();
 
   uView.display();  
   // wait till 1 second has passed
@@ -47,12 +50,43 @@ void loop()
 }
 
 void printVolts(float volts) {
+  // Print the current voltage followed by the "V" symbol ("/" in this font)
   uView.clear(PAGE);
   uView.setCursor(0,0);
-  uView.print(volts,3);
+  uView.print(volts,2);
   uView.print("/");
 }
 
+void printGraph() {
+  int y;
+  int i;
+  for (int x=0; x<60; x++) {
+    // in the 0th position we want the value of timearr[secs - 1] (this sec hasn't been recorded yet)
+    // in the 1st position we want the value of timearr[secs - 2]
+    // in the 2nd position we want the value of timearr[secs - 3], etc.    
+    // when we underflow [secs - n] we want to wrap around to [59]
+    i = secs - x - 1;
+    if (i<0) {
+      i += 60;
+    }
+    y = 24 * (timearr[i] - graphMin) / (graphMax - graphMin);
+    // bound y between 0 <= y <= 24
+    y = min(max(y,0),24);
+    
+    uView.pixel(x + 2, 47 - y);
+  }
+  // draw arrow if current reading is below min or above max
+  if (timearr[secs-1] > graphMax) {
+    uView.line(2,32,2,25);
+    uView.line(2,25,5,28);
+    uView.line(2,25,0,27);
+  }
+  if (timearr[secs-1] < graphMin) {
+    uView.line(2,38,2,45);
+    uView.line(2,45,5,42);
+    uView.line(2,45,0,43);
+  }
+}
 
 void storeVolts(float volts) {
   // Store the latest reading in the seconds array
