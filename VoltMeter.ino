@@ -53,7 +53,10 @@ void printVolts(float volts) {
   // Print the current voltage followed by the "V" symbol ("/" in this font)
   uView.clear(PAGE);
   uView.setCursor(0,0);
-  uView.print(volts,2);
+  if (volts < 10)
+    uView.print(volts,3);
+  else if (volts < 100)
+    uView.print(volts,2);
   uView.print("/");
 }
 
