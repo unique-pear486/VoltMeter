@@ -39,7 +39,10 @@ void loop()
   volts *= 0.0153432;
 
   printVolts(volts);
-  printGraph();
+  if (secs < 30)
+    printGraph(false);
+  else
+    printGraph(true);
 
   uView.display();  
   // wait till 1 second has passed
@@ -53,14 +56,16 @@ void printVolts(float volts) {
   // Print the current voltage followed by the "V" symbol ("/" in this font)
   uView.clear(PAGE);
   uView.setCursor(0,0);
-  if (volts < 10)
+  if (volts < 10) {
     uView.print(volts,3);
-  else if (volts < 100)
+  }
+  else if (volts < 100) {
     uView.print(volts,2);
+  }
   uView.print("/");
 }
 
-void printGraph() {
+void printGraph(boolean hour_) {
   int y;
   int i;
   for (int x=0; x<60; x++) {
@@ -70,6 +75,14 @@ void printGraph() {
     // when we underflow [secs - n] we want to wrap around to [59]
     i = secs - x - 1;
     if (i<0) {
+      i += 60;
+    }
+    // If hour_ is set read from the minutes section of timearr (display the last hour)
+    if (hour_) {
+      i = mins - x - 1;
+      if (i<0) {
+        i += 60;
+      }
       i += 60;
     }
     y = 24 * (timearr[i] - graphMin) / (graphMax - graphMin);
